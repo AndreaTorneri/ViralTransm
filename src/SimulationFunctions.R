@@ -172,6 +172,8 @@ nCov.simulator.ExpHosp.QuarIso.aftersympt<-function(n, lambda, sigma,avg.inc, mu
   status.matrix[,1]<-0 #all the population is initially susceptible
   status.matrix[,7]<-0 #no one treated
   status.matrix[,9]<-0 #no one traced
+  status.matrix[,8]<-0 
+
   
   recovery.vector<-rep(NA,n) #vector of recovery times
   quarantine.day<-rep(Inf,n) #day at which individuals will be diagnosed
@@ -258,11 +260,15 @@ nCov.simulator.ExpHosp.QuarIso.aftersympt<-function(n, lambda, sigma,avg.inc, mu
           for (t in unique(contacted.individuals)) {
             #print(t)
             if (rbinom(1,1,eta)==1){ #succesful tracing 
-              if (status.matrix[t,1]==1){ # When an infected is succesfully traced, he/she is monitored: quarantine/isolation at time of symptoms onset    
-                quarantine.day[t]<-status.matrix[t,5] 
+              if (status.matrix[t,1]==1){
+                quarantine.day[t]<-status.matrix[t,5]
                 status.matrix[t,6]<-quarantine.day[t]
-                status.matrix[t,9]<-1
+              }else{
+                if (status.matrix[t,9]==0 | (status.matrix[t,9]==1 & (status.matrix[t,8] < current.time ))){
+                  status.matrix[t,8]<-current.time+14
+                }
               }
+              status.matrix[t,9]<-1
             }
           }
         }
@@ -282,18 +288,25 @@ nCov.simulator.ExpHosp.QuarIso.aftersympt<-function(n, lambda, sigma,avg.inc, mu
           status.matrix[infectee,5]<-current.time+nCov.IncubationPeriod(avg.inc=avg.inc) 
           recovery.vector[infectee]<-status.matrix[infectee,5]+nCov.SymptmPeriod(mu.IP = mu.IP)  
           transmission.parameters$total_infectionPeriod[infectee]<-recovery.vector[infectee]-current.time
-          infectives[infectee]<-1
+          infectives[infectee]<-1 
+           if (status.matrix[infectee,9]==1){ #if the individual that has been infected is under tracing we monitor him/her. If show symptoms while being traced; he/she is
+             #going to be diagnosed when symptoms onset
+            if ((status.matrix[infectee,5])<status.matrix[infectee,8]){
+              quarantine.day[infectee]<-status.matrix[infectee,5]
+            }else{
+              quarantine.day[infectee]<-status.matrix[infectee,5]+nCov.diagnosis(avg.dt = avg.dt)
+              status.matrix[infectee,9]<-0
+            }
+          }else{
+            quarantine.day[infectee]<-status.matrix[infectee,5]+nCov.diagnosis(avg.dt = avg.dt)
+          } 
           if (runif(1)<sigma){ #check whether are severe
               status.matrix[infectee,4]<-2
               transmission.parameters$q[infectee]<-R/lambda
-              short<-TRUE
-              quarantine.day[infectee]<-status.matrix[infectee,5]+nCov.diagnosis(avg.dt) 
               status.matrix[infectee,6]<-quarantine.day[infectee]
               time.events<-rbind(time.events,c(current.time,1.2,infectee))
           }else{
               status.matrix[infectee,4]<-1
-              short<-FALSE
-              quarantine.day[infectee]<-status.matrix[infectee,5]+nCov.diagnosis(avg.dt) # quarantined after some day from symptom onset              
               status.matrix[infectee,6]<-quarantine.day[infectee]
               transmission.parameters$q[infectee]<-R/lambda
               time.events<-rbind(time.events,c(current.time,1.1,infectee))
