@@ -28,7 +28,6 @@ set.seed(nSeed)
 for (i in 1:nSim){
   epi.outbreak[[i]]<-nCov.simulator.ExpHosp.QuarIso.aftersympt(n=n, lambda=lambda, sigma=sigma,avg.inc=avg.inc, mu.IP=mu.IP,R,avg.dt=avg.dt, eta=eta, rate.quar=rate.quar)
 # epi.outbreak[[i]]<-nCov.simulator.ExpHosp.QuarIso.beforesympt.delaytesting(n=n, lambda=lambda, sigma=sigma,avg.inc=avg.inc, mu.IP=mu.IP,R=R,avg.dt=avg.dt, eta=eta, rate.quar=rate.quar, tfailtest = tfailtest, tdelaytest = tdelaytest)
- # epi.outbreak[[i]]<-nCov.simulator.ExpHosp.QuarIsoAfter.Treatment.beforesympt.delaytesting(n=n, lambda=lambda, sigma=sigma,avg.inc=avg.inc, mu.IP=mu.IP,R=R,avg.dt=avg.dt, eta=eta, rate.quar=rate.quar, tfailtest = tfailtest, tdelaytest = tdelaytest)
   #epi.outbreak[[i]]<-nCov.simulator.ExpHosp.QuarIsoTreat.beforesympt.delaytesting(n=n, lambda=lambda, sigma=sigma,avg.inc=avg.inc, mu.IP=mu.IP,R=R,avg.dt=avg.dt, eta=eta, rate.quar=rate.quar, tfailtest = tfailtest, tdelaytest = tdelaytest)
 }
 
