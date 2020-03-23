@@ -1,4 +1,10 @@
-#setwd("~/Desktop/Ncov")
+args <- commandArgs(trailingOnly = TRUE)
+
+wd = args[1]
+cores = args[2]
+
+setwd(wd)
+
 #load packages
 library(foreach)
 library(doParallel)
@@ -25,7 +31,7 @@ tdelaytest<-2
 lambda.dec<-0.25*lambda
 VShed<-"After"
 
-cl<-msakeCluster(2)
+cl<-makeCluster(cores)
 registerDoParallel(cl)
 
 nSim<-5000
