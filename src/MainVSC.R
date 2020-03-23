@@ -8,6 +8,8 @@ as.prop = as.numeric(args[5])
 eta = as.numeric(args[6])
 rq = as.numeric(args[7])
 tfailtest = as.numeric(args[8])
+R.a = as.numeric(args[9])
+R.s = as.numeric(args[10])
 
 setwd(wd)
 
