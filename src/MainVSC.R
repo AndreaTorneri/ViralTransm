@@ -1,15 +1,15 @@
 args <- commandArgs(trailingOnly = TRUE)
 
-wd = args[1]
-cores = as.numeric(args[2])
-scen = args[3]
-rho = as.numeric(args[4])
-as.prop = as.numeric(args[5])
-eta = as.numeric(args[6])
-rq = as.numeric(args[7])
-tfailtest = as.numeric(args[8])
-R.a = as.numeric(args[9])
-R.s = as.numeric(args[10])
+wd = args[1] #working directory
+cores = as.numeric(args[2]) #number of cores to run in parallel
+scen = args[3] #scenario: IAS, IBS  or IBTBS
+rho = as.numeric(args[4]) #proportion of diagnosed
+as.prop = as.numeric(args[5]) #proportion of asymptomatic (among the undiagnosed)
+eta = as.numeric(args[6]) # probability of successfuly trace-back an individual
+rq = as.numeric(args[7]) # decrease in contact rate due to quarantine
+tfailtest = as.numeric(args[8]) # time since infection at which the test results positive
+R.a = as.numeric(args[9]) # reproduction number asymptomatic
+R.s = as.numeric(args[10]) # reproduction number symptomatic
 
 setwd(wd)
 
@@ -23,16 +23,16 @@ n<-500 #Population size
 lambda<-12 #daily rate of social contacts
 #rho<- 0.6 # proportion of symptomatic individual
 #as.prop<-0.5
-sigma<- 0.16 # proportion of severe cases (computed the 15.2.2020 from: https://docs.google.com/spreadsheets/d/1Z7VQ5xlf3BaTx_LBBblsW4hLoGYWnZyog3jqsS9Dbgc/edit#gid=957283529)
+sigma<- 0.16 # proportion of severe cases 
 avg.inc<-5.2 # NEJM Li
-mu.IP<-18 #28.6 #2.3 NEJM Li (SerialInt-Inc) -Anne Cori - SARS
+mu.IP<-18 #mean length symptomatic period
 #R.s<-2.5 # reproduction number symptomatic (mild)
 #R.a<-2.5 #reproduction number asymptomatic
-avg.dt<-1.6
+avg.dt<-1.6 # mean length time to diagnosed (after symptoms onset)
 #eta<-0.5
 #tfailtest<-2
-tdelaytest<-tfailtest
-lambda.dec<-rq*lambda
+tdelaytest<-tfailtest # time at which the second test takes place, if the first one fails
+lambda.dec<-rq*lambda # contact rate in quarantine
 
 
 cl<-makeCluster(as.numeric(cores))
