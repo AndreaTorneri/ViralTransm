@@ -1,4 +1,4 @@
-id,scen,rho,as.prop,eta,rq,tfailtest,Ra,Rs
+id,scen,rho,prop,eta,rq,tfailtest,Ra,Rs
 1,"IAS",0.14,0.5,0.25,0.25,2,2.5,2.5
 2,"IAS",0.14,0.5,0.5,0.25,2,2.5,2.5
 3,"IAS",0.14,0.5,0.75,0.25,2,2.5,2.5
