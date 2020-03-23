@@ -1,13 +1,13 @@
 args <- commandArgs(trailingOnly = TRUE)
 
 wd = args[1]
-cores = args[2]
+cores = as.numeric(args[2])
 scen = args[3]
-rho = args[4]
-as.prop = args[5]
-eta = args[6]
-rq = args[7]
-tfailtest = args[8]
+rho = as.numeric(args[4])
+as.prop = as.numeric(args[5])
+eta = as.numeric(args[6])
+rq = as.numeric(args[7])
+tfailtest = as.numeric(args[8])
 
 setwd(wd)
 
