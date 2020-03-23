@@ -30,7 +30,7 @@ tdelaytest<-2
 lambda.dec<-0.25*lambda
 VShed<-"After"
 
-cl<-makeCluster(cores)
+cl<-makeCluster(as.numeric(cores))
 registerDoParallel(cl)
 
 nSim<-4
