@@ -1,7 +1,7 @@
 args <- commandArgs(trailingOnly = TRUE)
 
-wd = args[1] #working directory
-cat(",wd=",wd)
+out = args[1] #working directory
+cat(",out=",out)
 cores = as.numeric(args[2]) #number of cores to run in parallel
 cat(",cores=",cores)
 scen = args[3] #scenario: IAS, IBS  or IBTBS
@@ -21,7 +21,7 @@ cat(",R.a=",R.a)
 R.s = as.numeric(args[10]) # reproduction number symptomatic
 cat(",R.s=",R.s)
 
-setwd(wd)
+setwd(getSrcDirectory()[1])
 
 #load packages
 library(foreach)
@@ -100,5 +100,6 @@ Ext.prob<-(1-length(not.extinct)/nSim)
 
 name<-paste("Asymptomatic",n,"_propUnd",rho,"_Rs",R.s,"_Ra",R.a,"_lambda",lambda,"_Scenario",VShed,"_eta",eta,"_lambda_dec",lambda.dec,"_tfail",tfailtest,"_.RData", sep = "")
 
+setwd(out)
 save(epi.outbreak, FinSize, PeakInc, Ext.prob, file = name)
 
