@@ -1,25 +1,25 @@
 args <- commandArgs(trailingOnly = TRUE)
 
 wd = args[1] #working directory
-cat("wd:",wd)
+cat(",wd=",wd)
 cores = as.numeric(args[2]) #number of cores to run in parallel
-cat("cores:",cores)
+cat(",cores=",cores)
 scen = args[3] #scenario: IAS, IBS  or IBTBS
-cat("scen:",scen)
+cat(",scen=",scen)
 rho = as.numeric(args[4]) #proportion of diagnosed
-cat("rho:",rho)
+cat(",rho=",rho)
 as.prop = as.numeric(args[5]) #proportion of asymptomatic (among the undiagnosed)
-cat("as.prop:",as.prop)
+cat(",as.prop=",as.prop)
 eta = as.numeric(args[6]) # probability of successfuly trace-back an individual
-cat("eta",eta)
+cat(",eta=",eta)
 rq = as.numeric(args[7]) # decrease in contact rate due to quarantine
-cat("rq",rq)
+cat(",rq=",rq)
 tfailtest = as.numeric(args[8]) # time since infection at which the test results positive
-cat("tfailtest",tfailtest)
+cat(",tfailtest=",tfailtest)
 R.a = as.numeric(args[9]) # reproduction number asymptomatic
-cat("R.a",R.a)
+cat(",R.a=",R.a)
 R.s = as.numeric(args[10]) # reproduction number symptomatic
-cat("R.s",R.s)
+cat(",R.s=",R.s)
 
 setwd(wd)
 
