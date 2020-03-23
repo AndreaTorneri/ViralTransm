@@ -4,10 +4,11 @@
 
 module load R/3.6.0-intel-2018a
 
-user=`whoami`
-out=/leuven/306/${user}/antiviral/
+out=$VSC_SCRATCH/antiviral/
 
 wd=$out
-cores=19
+cores=20
 
-Rscript src/MainVSC.R wd ${cores} ${scen} ${rho} ${prop} ${eta} ${rq} ${tfailtest} ${Ra} ${Rs} > ${out}/${id}.out 2> ${out}/${id}.err
+soft=~/projects/ViralTransm
+
+Rscript ${soft}/src/MainVSC.R wd ${cores} ${scen} ${rho} ${prop} ${eta} ${rq} ${tfailtest} ${Ra} ${Rs} > ${out}/${id}.out 2> ${out}/${id}.err
