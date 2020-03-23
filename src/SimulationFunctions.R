@@ -163,6 +163,202 @@ nCov.SymptmPeriod<-function(mu.IP){
 # Status.matrix: matrix that keep track of different features of the individaul during the epidemic, e.g. status (infected/recovered/susceptible), time of infection, time of symptom onsets, time of diagnosis, time of treatment.
 
 
+
+nCov.simulator.ExpHosp.QuarIso.cttracing.aftersympt.asymptm<-function(n, lambda, rho, sigma,avg.inc, mu.IP,R.a,R.s,avg.dt,eta, rate.quar){
+  
+  status.matrix <- matrix(NA,nrow = n,ncol = 9) #matrix containing information about the state of the individuals
+  col.name<-c("infected","time.of.infection","infector", "severity", "TimeSymptomOnset","TimeQuarantine", "Treatment", "TimeTreatment","Traced")
+  # infected can be: 0 (susceptible), 1 (mild-simptomatic), 2 (severe-simptomatic) / severity can be 1.0 (asymptomatic), 1.1 (mild symptoms), 1.2 (severe symptoms)
+  dimnames(status.matrix)<-list(NULL,col.name)
+  status.matrix[,1]<-0 #all the population is initially susceptible
+  status.matrix[,7]<-0 #no one treated
+  status.matrix[,8]<-0 
+  status.matrix[,9]<-0 #no one traced
+  
+  recovery.vector<-rep(NA,n) #vector of recovery times
+  quarantine.day<-rep(Inf,n) #day at which individuals will be quarantined
+  
+  infectives<-rep(0,n) # vector that indicates who is infectious at the current time: 1 infectious 0 non infectious
+  quarantine<-rep(0,n) #vector that says who is at in quarantine at the current time. 0 means no quarantine, 1 quarantine
+  current.time<-0
+  
+  #transmission parameter dataframe: each line is an individual, the first colum is the transmsission coeffficient and the third the length of IP (needed to re-scale Viral load curve)
+  transmission.parameters<-data.frame("id"=1:n,"q"=rep(NA,n),"total_infectionPeriod"=rep(NA,n), "contact_rate"=lambda)   #matrix containing the proposed time of the next contact (first colum) and the contact individual (second column)
+  
+  # first infected: randomly chosen in the population (among the susceptibles)
+  first<-sample(which(status.matrix[,1]==0), 1) #initial case
+  status.matrix[first,1] <- 1 
+  status.matrix[first,2] <- 0
+  status.matrix[first,5]<-current.time+nCov.IncubationPeriod(avg.inc =avg.inc) #(Exposed period - this is assume to be of same length of the incubation period)
+  recovery.vector[first]<-status.matrix[first,5]+nCov.SymptmPeriod(mu.IP = mu.IP) # the total length since infection (Exposed+IP) 
+  transmission.parameters$total_infectionPeriod[first]<-recovery.vector[first]-current.time
+  infectives[first]<-1
+  time.events<-matrix(NA,1,3)
+  
+  if (runif(1)<rho){
+    if (runif(1)<sigma){ #check whether are severe
+      status.matrix[first,4]<-2
+      transmission.parameters$q[first]<-R.s/lambda
+      quarantine.day[first]<-status.matrix[first,5]+nCov.diagnosis(avg.dt = avg.dt)
+      time.events[1,]<-c(current.time,1.2,first)
+      status.matrix[first,6]<-quarantine.day[first]
+    }else{
+      status.matrix[first,4]<-1
+      short<-FALSE
+      transmission.parameters$q[first]<-R.s/lambda
+      quarantine.day[first]<-status.matrix[first,5]+nCov.diagnosis(avg.dt = avg.dt)
+      status.matrix[first,6]<-quarantine.day[first]
+      time.events[1,]<-c(current.time,1.1,first)
+    }
+  }else{
+    status.matrix[first,4]<-0
+    short<-FALSE
+    transmission.parameters$q[first]<-R.a/lambda
+    status.matrix[first,5]<-Inf # no symptoms
+    quarantine.day[first]<-Inf # no diagnosed
+    status.matrix[first,6]<-quarantine.day[first]
+    time.events[1,]<-c(current.time,1.0,first)
+  }
+  
+  
+  contact.time<-data.frame("id"=1:n,"pr.ctc"=rep(NA,n),"pr.infectee"=rep(NA,n))   #matrix containing the proposed time of the next contact (first colum) and the contact individual (second column)
+  proposed.individual<-0
+  index.contact<-rep(0,n) # vector that selects the individuals that have to propose a new social contact(global) - 1 yes 0 no
+  index.contact[first]<-1 #when 1 individual proposes a contact 
+  int.time<-0
+  temp.contact.time<-0
+  indiv.prop.ctc<-0
+  T_NextCtc<-0
+  recovered<-0
+  contact.list<-list()
+  for (i in 1:n){
+    contact.list[[i]]<-0
+  }
+  
+  
+  err<-0
+  #When only the first pathogen is present
+  while(sum(infectives, na.rm = TRUE) > 0){ #while there are still infectives
+    #Phase 1: individuals who has to, propose a new social contact
+    for (i in which(index.contact==1) ){ # for all the individuals that has to propose a global contact
+      temp.contact.time<-rexp(1,transmission.parameters$contact_rate[i])+current.time# I generate the next interarrival time for individual i
+      index.contact[i]<-0
+      #contact.time$pr.infectee[i] <-sample(setdiff(1:n,c(i,which(quarantine!=0))),1) # individual can make contact only with people that are not quarantined
+      contact.time$pr.ctc[i]<-temp.contact.time # If it is an infectious contact I keep track of the individual and of the time
+      #if (temp.contact.time>quarantine.day[i]){contact.time$pr.ctc[i]<-NA} # he does not make contact contact till is quarantine
+    }
+    
+    #Phase 2: identify the next event: possible infection, someone is quarantined or a recovery
+    ifelse(length(which(is.na(contact.time$pr.ctc)==FALSE))>0,T_NextCtc<-min(contact.time$pr.ctc, na.rm = T),T_NextCtc<-Inf) # among all the proposed social contact between houeholds we select the minimum
+    ifelse(length(which(!is.infinite(quarantine.day)))>0,Q<-min(quarantine.day),Q<-Inf ) #minimum quarantine pathogen 1
+    R_a<-min(recovery.vector, na.rm = T) # minimum among the recovery times
+    
+    
+    if (Q<=min(T_NextCtc,R_a)){
+      current.time<-Q
+      person.quarantined<-which(Q==quarantine.day)
+      quarantine[person.quarantined]<-1
+      quarantine.day[person.quarantined]<-Inf
+      if (status.matrix[person.quarantined,4]==2){
+        contact.time$pr.ctc[person.quarantined]<-NA #if severe isolated
+      }else{
+        transmission.parameters$contact_rate[person.quarantined]<-rate.quar
+      }
+      #Contact-tracing: with a certain probability, select a previously contacted individual and treat him/her 
+      if (status.matrix[person.quarantined,9]==0){
+        contacted.individuals<-NULL
+        ifelse(length(contact.list[[person.quarantined]])>0, contacted.individuals<-contact.list[[person.quarantined]][-1], contacted.individuals<-NULL)
+        contacted.individuals<-setdiff(contacted.individuals,which(quarantine==1))
+        if (length(contacted.individuals)>0){
+          for (t in unique(contacted.individuals)) {
+            #print(t)
+            if (rbinom(1,1,eta)==1){ #succesful tracing 
+              if (status.matrix[t,1]==1){
+                quarantine.day[t]<-status.matrix[t,5]
+                status.matrix[t,6]<-quarantine.day[t]
+              }else{
+                if (status.matrix[t,9]==0 | (status.matrix[t,9]==1 & (status.matrix[t,8] < current.time ))){
+                  status.matrix[t,8]<-current.time+14
+                }
+              }
+              status.matrix[t,9]<-1
+            }
+          }
+        }
+      }
+    }else{
+      if (T_NextCtc<R_a){
+        current.time<-T_NextCtc
+        infector<-which(contact.time$pr.ctc ==T_NextCtc) 
+        infectee<-sample(setdiff(1:n,infector),1)
+        acc.rate<-nCov.InfMeasure(t=(current.time-status.matrix[infector,2]), lengthI = transmission.parameters$total_infectionPeriod[infector])*transmission.parameters$q[infector]
+        if (acc.rate>1){err<-err+1}
+        contact.list[[infector]]<-c(contact.list[[infector]],infectee)
+        if (status.matrix[infectee,1]==0 & runif(1)<acc.rate){
+          status.matrix[infectee,1]<-1
+          status.matrix[infectee,2]<-current.time
+          status.matrix[infectee,3]<-infector
+          status.matrix[infectee,5]<-current.time+nCov.IncubationPeriod(avg.inc=avg.inc) #(Exposed period - this is assume to be of same length of the incubation period)
+          recovery.vector[infectee]<-status.matrix[infectee,5]+nCov.SymptmPeriod(mu.IP = mu.IP) # the total length since infection (Exposed+IP) 
+          transmission.parameters$total_infectionPeriod[infectee]<-recovery.vector[infectee]-current.time
+          infectives[infectee]<-1
+          if (status.matrix[infectee,9]==1){
+            if ((status.matrix[infectee,5])<status.matrix[infectee,8]){
+              quarantine.day[infectee]<-status.matrix[infectee,5]
+            }else{
+              quarantine.day[infectee]<-status.matrix[infectee,5]+nCov.diagnosis(avg.dt = avg.dt) 
+              status.matrix[infectee,9]<-0
+            }
+          }else{
+            quarantine.day[infectee]<-status.matrix[infectee,5]+nCov.diagnosis(avg.dt = avg.dt) 
+          }
+          
+          if (runif(1)<rho){
+            if (runif(1)<sigma){ # whether are severe
+              status.matrix[infectee,4]<-2
+              transmission.parameters$q[infectee]<-R.s/lambda
+              status.matrix[infectee,6]<-quarantine.day[infectee]
+              time.events<-rbind(time.events,c(current.time,1.2,infectee))
+            }else{
+              status.matrix[infectee,4]<-1
+              status.matrix[infectee,6]<-quarantine.day[infectee]
+              transmission.parameters$q[infectee]<-R.s/lambda
+              time.events<-rbind(time.events,c(current.time,1.1,infectee))
+            }
+          }else{
+            status.matrix[infectee,4]<-1
+            transmission.parameters$q[infectee]<-R.a/lambda
+            quarantine.day[infectee]<-Inf
+            status.matrix[infectee,6]<-quarantine.day[infectee]
+            status.matrix[infectee,5]<-Inf
+            time.events<-rbind(time.events,c(current.time,1.0,infectee))
+          }
+          index.contact[infectee]<-1
+        }
+        index.contact[infector]<-1
+        contact.time$pr.ctc[infector]<-NA
+        #Phase 2.3 a recovery occurs
+      }else{
+        current.time<-R_a
+        recovered<-which(recovery.vector==R_a)
+        recovery.vector[recovered]<-NA
+        status.matrix[recovered,1]<--1
+        time.events<-rbind(time.events,c(current.time,0.1,recovered))
+        contact.time[recovered,2:3]<-rep(NA,4)
+        infectives[recovered]<-NA
+        quarantine.day[recovered]<-Inf
+        quarantine[recovered]<-0
+      }
+    }
+  }
+  #When also the other pathogen is present.
+  timev.name<-c("time","event","who")
+  dimnames(time.events)<-list(NULL,timev.name)
+  
+  return(list(time.events=time.events, status.matrix=status.matrix,err=err))
+}
+
+
 nCov.simulator.ExpHosp.QuarIso.aftersympt<-function(n, lambda, sigma,avg.inc, mu.IP,R,avg.dt, eta, rate.quar){
   
   status.matrix <- matrix(NA,nrow = n,ncol = 9) #matrix containing information about the state and other features of individuals
