@@ -10,4 +10,4 @@ out=/leuven/306/${user}/antiviral/
 wd=$out
 cores=19
 
-Rscript MainVSC.R wd ${cores} ${scen} ${rho} ${prop} ${eta} ${rq} ${tfailtest} ${Ra} ${Rs} > ${out}/${id}.out 2> ${out}/${id}.err
+Rscript src/MainVSC.R wd ${cores} ${scen} ${rho} ${prop} ${eta} ${rq} ${tfailtest} ${Ra} ${Rs} > ${out}/${id}.out 2> ${out}/${id}.err
