@@ -53,7 +53,7 @@ if (scen=="IBS"){
      epi.outbreak[[i]]<-nCov.simulator.ExpHosp.QuarIso.beforesympt.testing (n=n, lambda = lambda, rho = rho, sigma = sigma, avg.inc = avg.inc, mu.IP = mu.IP, R.a = R.a, R.s=R.s,avg.dt=avg.dt, rate.quar = lambda.dec, eta=eta, as.prop = as.prop, tfailtest = tfailtest, tdelaytest = tdelaytest)  
   }
 }
-if (scen=="ITRB"){
+if (scen=="IBTBS"){
   VShed<-scen
   epi.outbreak<-foreach(i = 1:nSim) %dopar%{
   epi.outbreak[[i]]<-nCov.simulator.ExpHosp.QuarIsoTreat.beforesympt.testing (n=n, lambda = lambda, rho = rho, sigma = sigma, avg.inc = avg.inc, mu.IP = mu.IP, R.a = R.a, R.s=R.s,avg.dt=avg.dt, rate.quar = lambda.dec, eta=eta, as.prop = as.prop, tfailtest = tfailtest, tdelaytest = tdelaytest)  
