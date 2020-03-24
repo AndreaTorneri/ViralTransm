@@ -9,5 +9,5 @@ out=$VSC_SCRATCH/antiviral/
 cores=19
 
 soft=~/projects/ViralTransm/src/
-
+cd ${soft}
 Rscript ${soft}/MainVSC.R ${out} ${cores} ${scen} ${rho} ${prop} ${eta} ${rq} ${tfailtest} ${Ra} ${Rs} > ${out}/${id}.out 2> ${out}/${id}.err

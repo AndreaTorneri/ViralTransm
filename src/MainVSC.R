@@ -21,8 +21,6 @@ cat(",R.a=",R.a)
 R.s = as.numeric(args[10]) # reproduction number symptomatic
 cat(",R.s=",R.s)
 
-setwd(getSrcDirectory()[1])
-
 #load packages
 library(foreach)
 library(doParallel)
