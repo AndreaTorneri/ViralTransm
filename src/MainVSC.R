@@ -99,5 +99,5 @@ Ext.prob<-(1-length(not.extinct)/nSim)
 name<-paste("Asymptomatic",n,"_propUnd",rho,"_Rs",R.s,"_Ra",R.a,"_lambda",lambda,"_Scenario",VShed,"_eta",eta,"_lambda_dec",lambda.dec,"_tfail",tfailtest,"_.RData", sep = "")
 
 setwd(out)
-save(epi.outbreak, FinSize, PeakInc, Ext.prob, file = name)
+save(epi.outbreak, FinSize, PeakInc, Ext.prob,not.extinct, file = name)
 
