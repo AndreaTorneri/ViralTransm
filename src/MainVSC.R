@@ -79,15 +79,15 @@ stopCluster(cl)
 finalSize<-NULL
 not.extinct<-NULL
 for (i in 1:nSim){
-  finalSize[i]<-length(c(which(epi.outbreak[[i]]$time.events[,2]==1.0),which(epi.outbreak[[i]]$time.events[,2]==1.1),which(epi.outbreak[[i]]$time.events[,2]==1.2)))
+  finalSize[i]<-length(c(which(epi.outbreak[[i]]$time.events[,2]==1.01),which(epi.outbreak[[i]]$time.events[,2]==1.02),which(epi.outbreak[[i]]$time.events[,2]==1.1),which(epi.outbreak[[i]]$time.events[,2]==1.2)))
   if (finalSize[i]>round(n*0.1)){not.extinct<-c(not.extinct,i)}
 }
 casesPeak<-NULL
-for (j in not.extinct) {
+for (j in not.extinct){
   time.events<-epi.outbreak[[j]]$time.events  
   epi.curve<-0
   for (i in 1:length(time.events[,1]) ){
-    epi.curve[i]<-length(c(which(time.events[1:i,2]==1.1),which(time.events[1:i,2]==1.2),which(time.events[1:i,2]==1.0)))-length(which(time.events[1:i,2]==0.1))
+    epi.curve[i]<-length(c(which(time.events[1:i,2]==1.1),which(time.events[1:i,2]==1.2),which(time.events[1:i,2]==1.01),which(time.events[1:i,2]==1.02)))-length(which(time.events[1:i,2]==0.1))
   }
   casesPeak<-c(casesPeak, max(epi.curve))
 }
