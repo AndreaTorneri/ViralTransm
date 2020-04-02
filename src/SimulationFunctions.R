@@ -35,9 +35,11 @@
 
 
 nCov.diagnosis<-function(avg.dt){
-  t.d<-rexp(1,rate = 1/avg.dt)
+  #t.d<-rexp(1,rate = 1/avg.dt)
+  t.d<-rgamma(1,shape =2.448898 , scale =1.563969 )
   return(t.d)
 }
+
 
 
 #############################################################################################
@@ -157,7 +159,7 @@ nCov.SymptmPeriod<-function(mu.IP){
 # eta: probability of succesful tracing 
 # rate.quar: contact rate in quarantine
 # tfailtest: days since infection at which the test gives positive result when the tested individual has been previously infected
- 
+
 # OUTPUT
 # Time events: matrix with three columns indicating the time at which an infection/recover event happens (first column) that time at which this event happens (second column) and the individual id (third column)
 # Status.matrix: matrix that keep track of different features of the individaul during the epidemic, e.g. status (infected/recovered/susceptible), time of infection, time of symptom onsets, time of diagnosis, time of treatment.
@@ -308,8 +310,6 @@ nCov.simulator.ExpHosp.QuarIso.aftersympt<-function(n, lambda, rho, sigma,avg.in
           recovery.vector[infectee]<-status.matrix[infectee,5]+nCov.SymptmPeriod(mu.IP = mu.IP) # the total length since infection (Exposed+IP) 
           transmission.parameters$total_infectionPeriod[infectee]<-recovery.vector[infectee]-current.time
           infectives[infectee]<-1
-
-          
           if (status.matrix[infectee,9]==1){
             if ((status.matrix[infectee,5])<status.matrix[infectee,8]){
               quarantine.day[infectee]<-status.matrix[infectee,5]
@@ -564,7 +564,7 @@ nCov.simulator.ExpHosp.QuarIso.beforesympt.testing<-function(n, lambda, rho, sig
               }
             }
             
-          index.contact[infectee]<-1
+            index.contact[infectee]<-1
           }
           index.contact[infector]<-1
           contact.time$pr.ctc[infector]<-NA

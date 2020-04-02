@@ -27,7 +27,7 @@ library(doParallel)
 # load functions
 source("SimulationFunctions.R")
 # Parameters
-n<-500 #Population size
+n<-1000 #Population size
 lambda<-12 #daily rate of social contacts
 #rho<- 0.6 # proportion of symptomatic individual
 #as.prop<-0.5
@@ -60,13 +60,13 @@ if (scen=="IAS"){
 if (scen=="IBS"){
   VShed<-scen
   epi.outbreak<-foreach(i = 1:nSim) %dopar%{
-     epi.outbreak[[i]]<-nCov.simulator.ExpHosp.QuarIso.beforesympt.testing (n=n, lambda = lambda, rho = rho, sigma = sigma, avg.inc = avg.inc, mu.IP = mu.IP, R.a = R.a, R.s=R.s,avg.dt=avg.dt, rate.quar = lambda.dec, eta=eta, as.prop = as.prop, tfailtest = tfailtest, tdelaytest = tdelaytest)  
+    epi.outbreak[[i]]<-nCov.simulator.ExpHosp.QuarIso.beforesympt.testing (n=n, lambda = lambda, rho = rho, sigma = sigma, avg.inc = avg.inc, mu.IP = mu.IP, R.a = R.a, R.s=R.s,avg.dt=avg.dt, rate.quar = lambda.dec, eta=eta, as.prop = as.prop, tfailtest = tfailtest, tdelaytest = tdelaytest)  
   }
 }
 if (scen=="IBTBS"){
   VShed<-scen
   epi.outbreak<-foreach(i = 1:nSim) %dopar%{
-  epi.outbreak[[i]]<-nCov.simulator.ExpHosp.QuarIsoTreat.beforesympt.testing (n=n, lambda = lambda, rho = rho, sigma = sigma, avg.inc = avg.inc, mu.IP = mu.IP, R.a = R.a, R.s=R.s,avg.dt=avg.dt, rate.quar = lambda.dec, eta=eta, as.prop = as.prop, tfailtest = tfailtest, tdelaytest = tdelaytest)  
+    epi.outbreak[[i]]<-nCov.simulator.ExpHosp.QuarIsoTreat.beforesympt.testing (n=n, lambda = lambda, rho = rho, sigma = sigma, avg.inc = avg.inc, mu.IP = mu.IP, R.a = R.a, R.s=R.s,avg.dt=avg.dt, rate.quar = lambda.dec, eta=eta, as.prop = as.prop, tfailtest = tfailtest, tdelaytest = tdelaytest)  
   }
 }
 
@@ -96,7 +96,7 @@ Ext.prob<-(1-length(not.extinct)/nSim)
 
 
 
-name<-paste("Asymptomatic",n,"_propUnd",rho,"_Rs",R.s,"_Ra",R.a,"_lambda",lambda,"_Scenario",VShed,"_eta",eta,"_lambda_dec",lambda.dec,"_tfail",tfailtest,"_.RData", sep = "")
+name<-paste("TDGamma_Asymptomatic",n,"_propUnd",rho,"_Rs",R.s,"_Ra",R.a,"_lambda",lambda,"_Scenario",VShed,"_eta",eta,"_lambda_dec",lambda.dec,"_tfail",tfailtest,"_.RData", sep = "")
 
 setwd(out)
 save(epi.outbreak, FinSize, PeakInc, Ext.prob,not.extinct, file = name)
